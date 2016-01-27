@@ -1,0 +1,5 @@
+{{#paper-select placeholder="Port" model=port}}
+  {{#each ports as |port|}}
+    {{#paper-option value=port}}{{port}}{{/paper-option}}
+  {{/each}}
+{{/paper-select}}
