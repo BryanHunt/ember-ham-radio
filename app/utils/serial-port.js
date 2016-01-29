@@ -13,11 +13,17 @@ export default Ember.Object.extend({
     this.set('dataBits', 8);
     this.set('stopBits', 1);
     this.set('parity', 'none');
-    this.set('rtscts', true);
-    this.set('xon', true);
-    this.set('xoff', true);
-    this.set('xany', true);
-    this.set('flowControl', true);
+    this.set('flowControl', false);
+    this.set('rtscts', false);
+    this.set('xon', false);
+    this.set('xoff', false);
+    this.set('xany', false);
+    this.set('hupcl', true);
+    this.set('rts', true);
+    this.set('cts', false);
+    this.set('dtr', true);
+    this.set('dts', false);
+    this.set('brk', false);
     this.set('bufferSize', 255);
   },
 
@@ -43,17 +49,60 @@ export default Ember.Object.extend({
   }),
 
   open() {
-    let props = ['baudRate', 'dataBits', 'stopBits', 'parity', 'rtscts', 'xon', 'xoff', 'xany', 'flowControl', 'bufferSize'];
-    let options = {};
+    let _this = this;
 
-    props.forEach(prop => {
-      let value = this.get(prop);
+    return new Promise((resolve, reject) => {
+      let properties = ['baudRate', 'dataBits', 'stopBits', 'parity', 'rtscts', 'xon', 'xoff', 'xany', 'flowControl', 'bufferSize'];
+      let options = {};
 
-      if (value !== undefined && value !== null) {
-        options[prop] = value;
-      }
+      properties.forEach((property) => {
+        let value = _this.get(property);
+
+        if (value !== undefined && value !== null) {
+          options[property] = value;
+        }
+      });
+
+      let serialPortFactory = _this.get('serialPortFactory');
+      let serialPort = new serialPortFactory.SerialPort(_this.get('port'), options, true, (err) => {
+        if(err) {
+          reject(err);
+        } else {
+          _this.set('driver', serialPort);
+          resolve();
+        }
+      });
+
+      serialPort.on("data", (data) => {
+        window.console.log("Data: " + data);
+      });
     });
+  },
 
-    this.set('driver', new SerialPort(this.get('port'), options));
+  close() {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      _this.get('driver').close((err) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  },
+
+  write(data) {
+    let _this = this;
+    return new Promise((resolve, reject) => {
+      _this.get('driver').write(data, (err) => {
+        if(err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 });
