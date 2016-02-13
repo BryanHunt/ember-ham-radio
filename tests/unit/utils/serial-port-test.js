@@ -1,4 +1,4 @@
-import serialPort from '../../../utils/serial-port';
+import serialPort from 'ham-radio/utils/serial-port';
 import { module, test } from 'qunit';
 
 module('Unit | Utility | serial port');
