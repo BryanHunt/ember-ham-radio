@@ -3,5 +3,7 @@
     {{#paper-option value=port}}{{port}}{{/paper-option}}
   {{/each}}
 {{/paper-select}}
-
-{{#paper-button action="test"}}Test{{/paper-button}}
+{{#paper-button action="refreshPorts"}}Refresh Ports{{/paper-button}}
+{{#if port}}
+  {{#paper-button action="readData" }}Read Data{{/paper-button}}
+{{/if}}
