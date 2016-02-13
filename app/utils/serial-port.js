@@ -4,7 +4,23 @@ const { Promise } = Ember.RSVP;
 
 const serialPortFactory = window.require("serialport");
 
-let SerialPort = Ember.Object.extend({
+export default Ember.Object.extend({
+  open(port, options) {
+    this.set('buffer', Ember.A());
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      let serialPortDriver = new serialPortFactory.SerialPort(port, options, true, (err) => {
+        if(err) {
+          reject(err);
+        } else {
+          serialPortDriver.on('data', (data) => _this.get('buffer').pushObject(data));
+          _this.set('driver', serialPortDriver);
+          resolve(_this);
+        }
+      });
+    });
+  },
 
   close() {
     // TODO: unregister this port with the serial port service
@@ -25,7 +41,7 @@ let SerialPort = Ember.Object.extend({
     // TODO: handle async update and clearing of buffer
     // TODO: honor size param
     let buffer = this.get('buffer');
-    this.set('buffer', []);
+    this.set('buffer', Ember.A());
     return buffer;
   },
 
@@ -43,24 +59,3 @@ let SerialPort = Ember.Object.extend({
     });
   }
 });
-
-SerialPort.reopenClass({
-  initialize(port, options) {
-    this.set('buffer', []);
-    let _this = this;
-
-    return new Promise((resolve, reject) => {
-      let serialPortDriver = new serialPortFactory.SerialPort(port, options, true, (err) => {
-        if(err) {
-          reject(err);
-        } else {
-          serialPortDriver.on('data', (data) => _this.get('buffer').append(data));
-          let serialPort = SerialPort.create({driver: serialPortDriver});
-          resolve(serialPort);
-        }
-      });
-    });
-  }
-});
-
-export default SerialPort;

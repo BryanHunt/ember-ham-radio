@@ -11,8 +11,8 @@ export default Component.extend({
       this.sendAction('refreshPorts');
     },
 
-    readData() {
-      this.sendAction('readData', this.get('port'));
+    testPort() {
+      this.sendAction('testPort', this.get('port'));
     }
   }
 });

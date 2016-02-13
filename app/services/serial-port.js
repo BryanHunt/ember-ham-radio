@@ -24,10 +24,6 @@ export default Service.extend({
   brk: false,
   bufferSize: 255,
 
-  openPorts: computed(() => {
-    return {};
-  }),
-
   fetchPorts() {
     let serialPortFactory = this.get('serialPortFactory');
 
@@ -43,13 +39,6 @@ export default Service.extend({
   },
 
   open(port, options = {}) {
-    let _this = this;
-    let ports = this.get('openPorts');
-
-    if (Ember.isPresent(ports[port])) {
-      return Ember.RSVP.resolve(ports[port]);
-    }
-
     let defaults = this.getProperties([
       'baudRate',
       'dataBits',
@@ -64,8 +53,6 @@ export default Service.extend({
     ]);
 
     options = Ember.merge(options, defaults);
-
-    return SerialPort.initialize(port, options)
-      .then((serialPort) => _this.set(`openPorts.${port}`, serialPort));
+    return SerialPort.create().open(port, options);
   }
 });
