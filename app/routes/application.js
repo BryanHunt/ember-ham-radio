@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   serialPort: Ember.inject.service(),
+  uv5r: Ember.inject.service(),
 
   model() {
     return this.get('serialPort').fetchPorts();
@@ -12,13 +13,8 @@ export default Ember.Route.extend({
       this.refresh();
     },
 
-    testPort(port) {
-      this.get('serialPort').open(port).then((driver) => {
-        driver.write(0x6);
-        let data = driver.read();
-        window.console.log("Data: " + data);
-        driver.close();        
-      });
+    testPort(portName) {
+      this.get('uv5r').importFrom(portName);
     }
   }
 });

@@ -5,8 +5,9 @@ const { Promise } = Ember.RSVP;
 const serialPortFactory = window.require("serialport");
 
 export default Ember.Object.extend({
-  open(port, options) {
-    this.set('buffer', Ember.A());
+  open(manager, port, dataHandler, options) {
+    this.set('manager', manager);
+    this.set('port', port);
     let _this = this;
 
     return new Promise((resolve, reject) => {
@@ -14,7 +15,10 @@ export default Ember.Object.extend({
         if(err) {
           reject(err);
         } else {
-          serialPortDriver.on('data', (data) => _this.get('buffer').pushObject(data));
+          serialPortDriver.on('error', (error) => window.console.log("Error" + error));
+          serialPortDriver.on('open', (data) => window.console.log("Open: " + data));
+          serialPortDriver.on('close', (data) => window.console.log("Open: " + data));
+          serialPortDriver.on('data', (data) => dataHandler.perform(data));
           _this.set('driver', serialPortDriver);
           resolve(_this);
         }
@@ -23,7 +27,7 @@ export default Ember.Object.extend({
   },
 
   close() {
-    // TODO: unregister this port with the serial port service
+    this.get('manager').close(this.get('port'));
     let driver = this.get('driver');
 
     return new Promise((resolve, reject) => {
@@ -38,11 +42,16 @@ export default Ember.Object.extend({
   },
 
   read(size) {
+    let _this = this;
+
+    return new Promise((resolve, reject) => {
+      let buffer = this.get('buffer');
+      this.set('buffer', Ember.A());
+      return buffer;
+
+    });
     // TODO: handle async update and clearing of buffer
     // TODO: honor size param
-    let buffer = this.get('buffer');
-    this.set('buffer', Ember.A());
-    return buffer;
   },
 
   write(data) {

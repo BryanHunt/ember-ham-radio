@@ -7,6 +7,10 @@ const { Promise } = Ember.RSVP;
 export default Service.extend({
   serialPortFactory: window.require("serialport"),
 
+  init() {
+    this.set('ports', {});
+  },
+
   baudRate: 9600,
   dataBits: 8,
   stopBits: 1,
@@ -38,7 +42,7 @@ export default Service.extend({
     });
   },
 
-  open(port, options = {}) {
+  open(port, dataHandler, options = {}) {
     let defaults = this.getProperties([
       'baudRate',
       'dataBits',
@@ -53,6 +57,19 @@ export default Service.extend({
     ]);
 
     options = Ember.merge(options, defaults);
-    return SerialPort.create().open(port, options);
+    let ports = this.get('ports');
+
+    if(ports[port]) {
+      return null; // TODO throw error
+    }
+
+    let driver = SerialPort.create();
+    ports[port] = driver;
+    return driver.open(this, port, dataHandler, options);
+  },
+
+  close(port) {
+    let ports = this.get('ports');
+    delete ports[port];
   }
 });

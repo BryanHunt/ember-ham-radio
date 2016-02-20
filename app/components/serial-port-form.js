@@ -1,8 +1,6 @@
 import Ember from 'ember';
-import SerialPort from '../utils/serial-port';
-import radio from '../utils/radios/uv5r';
 
-const { Component, computed } = Ember;
+const { Component } = Ember;
 
 export default Component.extend({
 

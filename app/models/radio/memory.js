@@ -1,10 +1,6 @@
 import DS from 'ember-data';
 
-const {
-  Model,
-  attr,
-  hasMany
-} = DS;
+const { Model, attr, hasMany } = DS;
 
 export default DS.Model.extend({
   contents: hasMany('radio/memory-block'),
